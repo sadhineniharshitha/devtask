@@ -1,9 +1,14 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 function AccountSettings() {
   const defaultImage = "https://randomuser.me/api/portraits/men/32.jpg";
   const [profileImage, setProfileImage] = useState(defaultImage);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // ✅ Get data passed from CreateAccount
+  const location = useLocation();
+  const userData = location.state || {};
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -19,75 +24,213 @@ function AccountSettings() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-md relative">
-      <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
+    <>
+      <div className="settings-container">
+        <h2 className="settings-title">Account Settings</h2>
 
-      {/* Profile Image + Upload */}
-      <div className="flex items-center mb-6">
-        <img
-          src={profileImage}
-          alt="Profile"
-          className="w-24 h-24 rounded-full object-cover border-2 border-purple-600"
-        />
-        <div className="ml-4">
-          <h3 className="text-lg font-medium">Your Name</h3>
-          <p className="text-gray-600">your.email@example.com</p>
-
-          <input
-            type="file"
-            accept="image/*"
-            id="profileUpload"
-            className="hidden"
-            onChange={handleImageChange}
+        {/* Profile Image + Upload */}
+        <div className="profile-section">
+          <img
+            src={profileImage}
+            alt="Profile"
+            className="profile-img"
           />
+          <div className="profile-info">
+            <h3 className="profile-name">{userData.name || "Your Name"}</h3>
+            <p className="profile-email">{userData.email || "your.email@example.com"}</p>
+            <p className="profile-phone">{userData.phone && `Phone: ${userData.phone}`}</p>
+            <p className="profile-company">{userData.company && `Company: ${userData.company}`}</p>
+            <p className="profile-agency">{userData.agency && `Agency: ${userData.agency}`}</p>
 
-          <div className="flex gap-3 mt-2">
-            <label
-              htmlFor="profileUpload"
-              className="text-sm text-purple-700 underline cursor-pointer"
-            >
-              Change Picture
-            </label>
-            <button
-              onClick={() => setShowConfirm(true)}
-              className="text-sm text-red-600 underline"
-            >
-              Remove Picture
-            </button>
-          </div>
-        </div>
-      </div>
+            <input
+              type="file"
+              accept="image/*"
+              id="profileUpload"
+              className="hidden-input"
+              onChange={handleImageChange}
+            />
 
-      <button className="w-full h-12 bg-purple-700 text-white rounded-lg font-medium">
-        Save Changes
-      </button>
-
-      {/* Confirmation Modal */}
-      {showConfirm && (
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-80">
-            <h3 className="text-lg font-semibold mb-4">Confirm Removal</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to remove your profile picture?
-            </p>
-            <div className="flex justify-end gap-3">
+            <div className="profile-actions">
+              <label htmlFor="profileUpload" className="change-link">
+                Change Picture
+              </label>
               <button
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                onClick={() => setShowConfirm(true)}
+                className="remove-link"
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleRemoveImage}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
-              >
-                Remove
+                Remove Picture
               </button>
             </div>
           </div>
         </div>
-      )}
-    </div>
+
+        <button className="save-btn">Save Changes</button>
+
+        {/* Confirmation Modal */}
+        {showConfirm && (
+          <div className="modal-overlay">
+            <div className="modal-box">
+              <h3 className="modal-title">Confirm Removal</h3>
+              <p className="modal-text">
+                Are you sure you want to remove your profile picture?
+              </p>
+              <div className="modal-actions">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="cancel-btn"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRemoveImage}
+                  className="remove-btn"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        .settings-container {
+          max-width: 500px;
+          margin: 2.5rem auto;
+          padding: 1.5rem;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          position: relative;
+        }
+
+        .settings-title {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+        }
+
+        .profile-section {
+          display: flex;
+          align-items: center;
+          margin-bottom: 1.5rem;
+        }
+
+        .profile-img {
+          width: 96px;
+          height: 96px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #6b21a8;
+        }
+
+        .profile-info {
+          margin-left: 1rem;
+        }
+
+        .profile-name {
+          font-size: 1.1rem;
+          font-weight: 500;
+        }
+
+        .profile-email,
+        .profile-phone,
+        .profile-company,
+        .profile-agency {
+          font-size: 0.9rem;
+          color: #555;
+        }
+
+        .hidden-input {
+          display: none;
+        }
+
+        .profile-actions {
+          display: flex;
+          gap: 0.75rem;
+          margin-top: 0.5rem;
+        }
+
+        .change-link {
+          font-size: 0.85rem;
+          color: #6b21a8;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .remove-link {
+          font-size: 0.85rem;
+          color: #ef4444;
+          text-decoration: underline;
+          background: none;
+          border: none;
+          cursor: pointer;
+        }
+
+        .save-btn {
+          width: 100%;
+          height: 48px;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          border: none;
+          background: #6b21a8;
+          color: #fff;
+        }
+
+        .modal-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0,0,0,0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .modal-box {
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          padding: 1.5rem;
+          width: 320px;
+        }
+
+        .modal-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+        }
+
+        .modal-text {
+          font-size: 0.9rem;
+          color: #555;
+          margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+        }
+
+        .cancel-btn {
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          background: #e5e7eb;
+          border: none;
+          cursor: pointer;
+        }
+
+        .remove-btn {
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          background: #ef4444;
+          color: #fff;
+          border: none;
+          cursor: pointer;
+        }
+      `}</style>
+    </>
   );
 }
 
